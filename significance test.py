@@ -42,8 +42,8 @@ for m in range(len(var)):
     for n in range(len(Base)):
         AClean_data = pd.DataFrame(np.reshape(AClean[n][var[m]].data,(192,288))).fillna(0) *np.reshape(AClean[n]['PS'].data,(192,288))/np.reshape(AClean[n]['TS'].data,(192,288))/287.05*1e9 
         Base_data = pd.DataFrame(np.reshape(Base[n][var[m]].data,(192,288))).fillna(0) *np.reshape(Base[n]['PS'].data,(192,288))/np.reshape(Base[n]['TS'].data,(192,288))/287.05*1e9
-        AClean_vardata[m].append(np.array(AClean_data))
-        Base_vardata[m].append(np.array(Base_data))                 
+        AClean_vardata[m].append(AClean_data)
+        Base_vardata[m].append(Base_data)                 
 
 AClean_vardata = np.array(AClean_vardata)
 Base_vardata = np.array(Base_vardata)       
@@ -60,8 +60,8 @@ for a in range(10):
                 AClean_vardata[a,:,b,c],
                 equal_var=False                       )
                 if p[a,b,c]<=0.05:
-                    index_scatter[a][0].append(lat[b])
-                    index_scatter[a][1].append(lon[c])
+                    index_scatter[a][1].append(lat[b])
+                    index_scatter[a][0].append(lon[c])
                     
 index_scatter[0][0].append(-180)
 index_scatter[0][1].append(90)
@@ -73,9 +73,12 @@ index_scatter[0][0].append(180)
 index_scatter[0][1].append(-90)
                 
 # add figure,coastline&borders
-fig = plt.figure(figsize = (8,6))
+fig = plt.figure(figsize = (24,18))
 proj = cartopy.crs.PlateCarree(central_longitude=0)   
 ax1 = fig.add_subplot(1, 1, 1, projection=proj)
+#ax1.spines['left'].set_color('red')
+ax1.spines['left'].set_linewidth(2)
+#ax1.coastlines
 ax1.add_feature(cartopy.feature.COASTLINE)
 ax1.add_feature(cartopy.feature.BORDERS)
 
@@ -90,11 +93,16 @@ lon_formatter = mticker.LongitudeFormatter()
 lat_formatter = mticker.LatitudeFormatter()
 ax1.xaxis.set_major_formatter(lon_formatter)
 ax1.yaxis.set_major_formatter(lat_formatter)
-ax1.set_title(var[m],fontdict = {'fontsize' : 18})
+ax1.tick_params(labelsize = 20)
+ax1.set_title(var[m],fontdict = {'fontsize' : 30})  
 
-#ax1.plot(index_scatter[0][0],index_scatter[0][1], markersize=5,marker='o',linestyle='',color='#3b3b3b',transform=proj)
-ax1.scatter(index_scatter[0][0], index_scatter[0][1],s = 2,color = 'black'
-            #markersize=0.1,marker='o',linestyle='',color='black'
-            )
+ax1.plot(index_scatter[0][0],index_scatter[0][1], markersize=0.1,marker='s',color='black',linestyle=' ',transform=proj)
+# =============================================================================
+# ax1.scatter(index_scatter[0][0], index_scatter[0][1],marker="s",
+#             s = 0.5,color = 'black'
+#             )
+# 
+# =============================================================================
 
+fig.savefig('E:/test.png')
 plt.show()

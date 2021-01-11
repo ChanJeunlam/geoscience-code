@@ -43,7 +43,7 @@ for m in range(len(var)):
         conc_diff[m] +=  (
             ( pd.DataFrame(np.reshape(AClean[n][var[m]].data,(192,288))).fillna(0) ) *np.reshape(AClean[n]['PS'].data,(192,288))/np.reshape(AClean[n]['TS'].data,(192,288))/287.05*1e9 
            -( pd.DataFrame(np.reshape(Base[n][var[m]].data,(192,288))).fillna(0)) *np.reshape(Base[n]['PS'].data,(192,288))/np.reshape(Base[n]['TS'].data,(192,288))/287.05*1e9
-                         )
+                         )/10
 # =============================================================================
 #     #calculate concentration difference totally
 # var_ = ['bc_SRF','pom_SRF','so4_SRF','soa_SRF']
@@ -54,6 +54,7 @@ for m in range(len(var)):
 # conc_diff_.append(conc_diff[7]+conc_diff[8])   
 #                 
 # =============================================================================
+
 # plot horizontal distribution     
 for m in range(len(var)):
     # remove middle white line
