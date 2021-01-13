@@ -103,23 +103,26 @@ for d in range(len(var)):
     fig = plt.figure(figsize = (24,18))
     proj = cartopy.crs.PlateCarree(central_longitude=0)   
     ax1 = fig.add_subplot(1, 1, 1, projection=proj)
+    ax1.outline_patch.set_linewidth(5)
     #ax1.spines['left'].set_color('red')
     #ax1.spines['left'].set_linewidth(2)
-    ax1.add_feature(cartopy.feature.COASTLINE)
-    #ax1.add_feature(cartopy.feature.BORDERS)
+    ax1.add_feature(cartopy.feature.COASTLINE,linewidth=4)
+    ax1.add_feature(cartopy.feature.BORDERS,linewidth=4)
     
     # set extent
-    # extent=[-180,180,-90,80]
-    # ax1.set_extent(extent)
+    #extent=[70,140,15,50]
+    #ax1.set_extent(extent)
     
     # set lon&lat
     ax1.set_xticks([-160,-120,-80,-40,0,40,80,120,160])
     ax1.set_yticks([-90,-60,-30,0,30,60,90])
+    #ax1.set_xticks([75,90,105,120,135])
+    #ax1.set_yticks([20,30,40,50])
     lon_formatter = mticker.LongitudeFormatter()
     lat_formatter = mticker.LatitudeFormatter()
     ax1.xaxis.set_major_formatter(lon_formatter)
     ax1.yaxis.set_major_formatter(lat_formatter)
-    ax1.tick_params(labelsize = 20)
+    ax1.tick_params(labelsize = 25)
     
     # set title
     ax1.set_title(var[d],fontdict = {'fontsize' : 30})  
@@ -137,13 +140,14 @@ for d in range(len(var)):
              marker='.',color='black',linestyle=' ',transform=proj)
                          
     # add colorbar    
-    cbar1 = fig.add_axes([0.15,0.15,0.7,0.02]) 
+    cbar1 = fig.add_axes([0.15,0.15,0.72,0.03]) 
     cb1 = plt.colorbar(h1, 
                        cax=cbar1,
                        #ticks=interval,
                        orientation='horizontal')
-    cb1.ax.tick_params(labelsize=24)  
-    cb1.set_label('µg/m³',fontsize=24)
+    cb1.ax.tick_params(labelsize=25)  
+    cb1.outline.set_linewidth(2)
+    cb1.set_label('µg/m³',fontsize=25)
     
     # save fig
     plt.savefig('F:/conc_diff_'+var[d]+'.png',
