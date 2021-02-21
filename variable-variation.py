@@ -12,11 +12,16 @@ import scipy.stats as stats
 # put all data into a list
 yr = [
       #'0001','0002','0003','0004','0005',
-      '0006','0007','0008','0009','0010',
-      '0011','0012','0013','0014'
+      #'0006','0007','0008','0009','0010',
+      '0011','0012','0013','0014','0015',
+      '0016','0017','0018','0019','0020'
      ]
 mon = [
-       '01','02','03','04','05','06','07','08','09','10','11','12'
+       '01','02','12'
+       #'03','04','05'
+       #'06','07','08'
+       #'09','10','11'
+       
       ]
 base = []
 for i in range(len(yr)):
@@ -84,14 +89,15 @@ for a in range(len(var)):
     index_scatter[a][0].append(180)
     index_scatter[a][1].append(-90)
 
-
+# set contour interval
+    interval = [-0.24,-0.16,-0.08,-0.04,0.04,0.08,0.16,0.24]
 
 # plot horizontal distribution     
 for d in range(len(var)):
     # remove middle white line
     lon = (xr.open_dataset('/public/home/gaojy/output/archive/AClean/atm/hist/AClean.cam.h0.0001-01.nc')).lon.data
     lat = (xr.open_dataset('/public/home/gaojy/output/archive/AClean/atm/hist/AClean.cam.h0.0001-01.nc')).lat.data
-    conc_ = conc_diff[d]
+    conc_ = conc_diff[d]/1e8
     conc_, lon = add_cyclic_point(conc_, coord=lon)
     
     # seperate colorbar into plus&minus  
@@ -125,14 +131,11 @@ for d in range(len(var)):
     ax1.tick_params(labelsize = 25)
     
     # set title
-    ax1.set_title(var[d],fontdict = {'fontsize' : 30})  
-    
-    # set contour interval
-    interval = [-1.2,-1.0,-0.8,-0.6,-0.4,-0.2,-0.1,-0.01,0.01,0.1,0.2]
+    ax1.set_title('AOD-DJF',fontdict = {'fontsize' : 30})  
     
     # plot contour
     h1 = plt.contourf(lon, lat, conc_,
-                      #interval,
+                      interval,
                       cmap = plt.cm.bwr,
                       norm = norm)
     # plot scatter
@@ -143,14 +146,14 @@ for d in range(len(var)):
     cbar1 = fig.add_axes([0.15,0.15,0.72,0.03]) 
     cb1 = plt.colorbar(h1, 
                        cax=cbar1,
-                       #ticks=interval,
+                       ticks=interval,
                        orientation='horizontal')
     cb1.ax.tick_params(labelsize=25)  
     cb1.outline.set_linewidth(2)
-    cb1.set_label('  ',fontsize=25)
+    cb1.set_label('10⁸',fontsize=25)
     
     # save fig
-    plt.savefig('/public/home/gaojy/plot/global_conc_diff_'+var[d]+'.png',
+    plt.savefig('/public/home/gaojy/plot/global-conc-diff_AOD-DJF.png',
                 #dpi=300, 
                 bbox_inches = 'tight')
     #plt.show()

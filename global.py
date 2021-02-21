@@ -11,11 +11,10 @@ import scipy.stats as stats
 
 # put all data into a list
 yr = [
-      '0001'
-      #,'0002','0003','0004','0005',
+      #'0001','0002','0003','0004','0005',
       #'0006','0007','0008','0009','0010',
-      #'0011','0012','0013','0014','0015',
-      #'0016','0017','0018','0019','0020'
+      '0011','0012','0013','0014','0015',
+      '0016','0017','0018','0019','0020'
      ]
 mon = [
        '01','02','03','04','05','06','07','08','09','10','11','12'
@@ -24,17 +23,17 @@ base = []
 for i in range(len(yr)):
     for j in range(len(mon)):
         base.append(xr.open_dataset
-                     ('F:/Base.cam.h0.'+yr[i]+'-'+mon[j]+'.nc'))   
+                     ('/public/home/gaojy/output/archive/Base/atm/hist/Base.cam.h0.'+yr[i]+'-'+mon[j]+'.nc'))   
 aclean = []
 for i in range(len(yr)):
     for j in range(len(mon)):
         aclean.append(xr.open_dataset
-                     ('F:/AClean.cam.h0.'+yr[i]+'-'+mon[j]+'.nc'))
+                     ('/public/home/gaojy/output/archive/AClean/atm/hist/AClean.cam.h0.'+yr[i]+'-'+mon[j]+'.nc'))
         
         
         
-lon = (xr.open_dataset('F:/AClean.cam.h0.0001-01.nc')).lon.data
-lat = (xr.open_dataset('F:/AClean.cam.h0.0001-01.nc')).lat.data    
+lon = (xr.open_dataset('/public/home/gaojy/output/archive/AClean/atm/hist/AClean.cam.h0.0001-01.nc')).lon.data
+lat = (xr.open_dataset('/public/home/gaojy/output/archive/AClean/atm/hist/AClean.cam.h0.0001-01.nc')).lat.data    
      
 # calc conc diff(var indexed by m)&data needed in t-test
 var = [
@@ -87,7 +86,7 @@ basedata = np.array(basedata)
 # calc p value in t-test      
 stat = np.zeros((len(var_),len(lat),len(lon)))
 p = np.zeros((len(var_),len(lat),len(lon)))
-    # ! attention:data length decided by len(var)
+    # ! attention:data length decided by len(var)/len(var_)
 index_scatter = [[[],[]],[[],[]],[[],[]],[[],[]]]
 for a in range(len(var_)):
     for b in range(len(lat)):
@@ -110,12 +109,17 @@ for a in range(len(var_)):
     index_scatter[a][1].append(-90)
 
 
+# set contour interval
+    interval = [[-3.5,-3.0,-2.5,-2.0,-1.5,-1.0,-0.5,-0.2,0.2,0.5],
+                [-8,-6,-4,-2,-1,1,2,4,6,8],
+                [-12.0,-10.5,-9.0,-7.5,-6.0,-4.5,-3.0,-1.5,-1.0,1.0,1.5],
+                [-1.6,-1.2,-0.8,-0.4,-0.2,0.2,0.4,0.8,1.2]]
 
 # plot horizontal distribution     
 for d in range(len(var_)):
     # remove middle white line
-    lon = (xr.open_dataset('F:/AClean.cam.h0.0001-01.nc')).lon.data
-    lat = (xr.open_dataset('F:/AClean.cam.h0.0001-01.nc')).lat.data
+    lon = (xr.open_dataset('/public/home/gaojy/output/archive/AClean/atm/hist/AClean.cam.h0.0001-01.nc')).lon.data
+    lat = (xr.open_dataset('/public/home/gaojy/output/archive/AClean/atm/hist/AClean.cam.h0.0001-01.nc')).lat.data
     conc_ = conc_diff[d]
     conc_, lon = add_cyclic_point(conc_, coord=lon)
     
@@ -132,9 +136,7 @@ for d in range(len(var_)):
     #ax1.spines['left'].set_color('red')
     #ax1.spines['left'].set_linewidth(2)
     ax1.add_feature(cartopy.feature.COASTLINE,linewidth=4)
-    ax1.add_geometries([china], ccrs.Geodetic(), edgecolor='red',
-                  facecolor='none')
-    #ax1.add_feature(cartopy.feature.BORDERS,linewidth=4)
+    ax1.add_feature(cartopy.feature.BORDERS,linewidth=4)
     
     # set extent
     #extent=[70,140,15,50]
@@ -154,12 +156,9 @@ for d in range(len(var_)):
     # set title
     ax1.set_title(var_[d],fontdict = {'fontsize' : 30})  
     
-    # set contour interval
-    interval = [-1.2,-1.0,-0.8,-0.6,-0.4,-0.2,-0.1,-0.01,0.01,0.1,0.2]
-    
     # plot contour
     h1 = plt.contourf(lon, lat, conc_,
-                      #interval,
+                      interval[d],
                       cmap = plt.cm.bwr,
                       norm = norm)
     # plot scatter
@@ -170,14 +169,14 @@ for d in range(len(var_)):
     cbar1 = fig.add_axes([0.15,0.15,0.72,0.03]) 
     cb1 = plt.colorbar(h1, 
                        cax=cbar1,
-                       #ticks=interval,
+                       ticks=interval[d],
                        orientation='horizontal')
     cb1.ax.tick_params(labelsize=25)  
     cb1.outline.set_linewidth(2)
     cb1.set_label('µg/m³',fontsize=25)
     
     # save fig
-    plt.savefig('F:/global_conc_diff_'+var_[d]+'.png',
+    plt.savefig('/public/home/gaojy/plot/global_conc_diff_'+var_[d]+'.png',
                 #dpi=300, 
                 bbox_inches = 'tight')
     #plt.show()

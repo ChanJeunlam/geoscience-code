@@ -13,7 +13,8 @@ import scipy.stats as stats
 yr = [
       #'0001','0002','0003','0004','0005',
       '0006','0007','0008','0009','0010',
-      '0011','0012','0013','0014'
+      '0011','0012','0013','0014','0015',
+      '0016','0017','0018','0019','0020'
      ]
 mon = [
        '01','02','03','04','05','06','07','08','09','10','11','12'
@@ -36,14 +37,14 @@ lat = (xr.open_dataset('/public/home/gaojy/output/archive/AClean/atm/hist/AClean
      
 # calc conc diff(var indexed by m)&data needed in t-test
 var = [
-       'bc_a1_SRF','bc_a4_SRF','pom_a1_SRF','pom_a4_SRF','so4_a1_SRF',
-       'so4_a2_SRF','so4_a3_SRF','soa_a1_SRF','soa_a2_SRF'
-       #AEROD_v
+       #'bc_a1_SRF','bc_a4_SRF','pom_a1_SRF','pom_a4_SRF','so4_a1_SRF',
+       #'so4_a2_SRF','so4_a3_SRF','soa_a1_SRF','soa_a2_SRF'
+       'AODDUST'
       ]
 nmon = len(yr)*len(mon)
     # ! attention:data length decided by len(var)
-acleandata = [[],[],[],[],[],[],[],[],[]]          
-basedata = [[],[],[],[],[],[],[],[],[]]
+acleandata = [[]]          
+basedata = [[]]
 conc_diff = np.zeros((len(var),len(lat),len(lon)))
 for m in range(len(var)):
     for n in range(nmon):
@@ -63,8 +64,7 @@ basedata = np.array(basedata)
 stat = np.zeros((len(var),len(lat),len(lon)))
 p = np.zeros((len(var),len(lat),len(lon)))
     # ! attention:data length decided by len(var)
-index_scatter = [[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],
-                 [[],[]],[[],[]]]
+index_scatter = [[[],[]]]
 for a in range(len(var)):
     for b in range(len(lat)):
         for c in range(len(lon)):    
@@ -85,14 +85,15 @@ for a in range(len(var)):
     index_scatter[a][0].append(180)
     index_scatter[a][1].append(-90)
 
-
+# set contour interval
+    interval = [-2.4,-1.6,-0.8,-0.4,0.4,0.8,1.6,2.4,3.2]
 
 # plot horizontal distribution     
 for d in range(len(var)):
     # remove middle white line
     lon = (xr.open_dataset('/public/home/gaojy/output/archive/AClean/atm/hist/AClean.cam.h0.0001-01.nc')).lon.data
     lat = (xr.open_dataset('/public/home/gaojy/output/archive/AClean/atm/hist/AClean.cam.h0.0001-01.nc')).lat.data
-    conc_ = conc_diff[d]
+    conc_ = conc_diff[d]/1e8
     conc_, lon = add_cyclic_point(conc_, coord=lon)
     
     # seperate colorbar into plus&minus  
@@ -104,54 +105,51 @@ for d in range(len(var)):
     fig = plt.figure(figsize = (24,18))
     proj = cartopy.crs.PlateCarree(central_longitude=0)   
     ax1 = fig.add_subplot(1, 1, 1, projection=proj)
-    ax1.outline_patch.set_linewidth(4)
+    ax1.outline_patch.set_linewidth(5)
     #ax1.spines['left'].set_color('red')
     #ax1.spines['left'].set_linewidth(2)
     ax1.add_feature(cartopy.feature.COASTLINE,linewidth=4)
     ax1.add_feature(cartopy.feature.BORDERS,linewidth=4)
     
     # set extent
-    extent=[70,140,15,50]
-    ax1.set_extent(extent)
+    #extent=[70,140,15,50]
+    #ax1.set_extent(extent)
     
     # set lon&lat
-    #ax1.set_xticks([-160,-120,-80,-40,0,40,80,120,160])
-    #ax1.set_yticks([-90,-60,-30,0,30,60,90])
-    ax1.set_xticks([75,90,105,120,135])
-    ax1.set_yticks([20,30,40,50])
+    ax1.set_xticks([-160,-120,-80,-40,0,40,80,120,160])
+    ax1.set_yticks([-90,-60,-30,0,30,60,90])
+    #ax1.set_xticks([75,90,105,120,135])
+    #ax1.set_yticks([20,30,40,50])
     lon_formatter = mticker.LongitudeFormatter()
     lat_formatter = mticker.LatitudeFormatter()
     ax1.xaxis.set_major_formatter(lon_formatter)
     ax1.yaxis.set_major_formatter(lat_formatter)
-    ax1.tick_params(labelsize = 40)
+    ax1.tick_params(labelsize = 25)
     
     # set title
-    ax1.set_title(var[d],fontdict = {'fontsize' : 45})  
-    
-    # set contour interval
-    interval = [-1.2,-1.0,-0.8,-0.6,-0.4,-0.2,-0.1,-0.01,0.01,0.1,0.2]
+    ax1.set_title('AOD-dust',fontdict = {'fontsize' : 30})  
     
     # plot contour
     h1 = plt.contourf(lon, lat, conc_,
-                      #interval,
+                      interval,
                       cmap = plt.cm.bwr,
                       norm = norm)
     # plot scatter
-    ax1.plot(index_scatter[d][0],index_scatter[d][1], markersize=10,
+    ax1.plot(index_scatter[d][0],index_scatter[d][1], markersize=1,
              marker='.',color='black',linestyle=' ',transform=proj)
                          
     # add colorbar    
-    cbar1 = fig.add_axes([0.15,0.12,0.72,0.03]) 
+    cbar1 = fig.add_axes([0.15,0.15,0.72,0.03]) 
     cb1 = plt.colorbar(h1, 
                        cax=cbar1,
-                       #ticks=interval,
+                       ticks=interval,
                        orientation='horizontal')
-    cb1.ax.tick_params(labelsize=40)  
+    cb1.ax.tick_params(labelsize=25)  
     cb1.outline.set_linewidth(2)
-    cb1.set_label('µg/m³',fontsize=40)
+    cb1.set_label('10⁸',fontsize=25)
     
     # save fig
-    plt.savefig('/public/home/gaojy/plot/CN_conc_diff_'+var[d]+'.png',
+    plt.savefig('/public/home/gaojy/plot/global_conc_diff_AOD-dust.png',
                 #dpi=300, 
                 bbox_inches = 'tight')
     #plt.show()
