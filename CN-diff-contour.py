@@ -37,7 +37,7 @@ aclean = []
 for m in range(len(yr)):
     for n in range(len(mon)):
         aclean.append(xr.open_dataset
-                     ('/public/home/gaojy/output/archive/WST_AClean/atm/hist/WST_AClean.cam.h0.'+yr[m]+'-'+mon[n]+'.nc'))
+                     ('/public/home/gaojy/output/archive/IND_AClean/atm/hist/IND_AClean.cam.h0.'+yr[m]+'-'+mon[n]+'.nc'))
 
 
 #read lon&lat
@@ -49,8 +49,8 @@ aclean_tdata = []
 base_tdata = []
 diff = np.zeros((len(lat),len(lon)))
 for o in range(nmon):
-	aclean_ = np.reshape(aclean[o]['soa_a1_SRF'].data+aclean[o]['soa_a2_SRF'].data,(192,288))*np.reshape(aclean[o]['PS'].data,(192,288))/np.reshape(aclean[o]['TS'].data,(192,288))/287.05*1e9
-	base_ = np.reshape(base[o]['soa_a1_SRF'].data+base[o]['soa_a2_SRF'].data,(192,288))*np.reshape(base[o]['PS'].data,(192,288))/np.reshape(base[o]['TS'].data,(192,288))/287.05*1e9
+	aclean_ = np.reshape(aclean[o]['TREFHT'].data,(192,288))
+	base_ = np.reshape(base[o]['TREFHT'].data,(192,288))
 	#aclean_ = pd.DataFrame(np.reshape(aclean[o]['FSNT'].data,(192,288))-np.reshape(aclean[o]['FSNTC'].data,(192,288))-np.reshape(aclean[o]['FLNT'].data,(192,288))+np.reshape(aclean[o]['FLNTC'].data,(192,288))).fillna(0)
 	#base_ = pd.DataFrame(np.reshape(base[o]['FSNT'].data,(192,288))-np.reshape(base[o]['FSNTC'].data,(192,288))-np.reshape(base[o]['FLNT'].data,(192,288))+np.reshape(base[o]['FLNTC'].data,(192,288))).fillna(0) 
 	aclean_tdata.append(aclean_)
@@ -115,7 +115,7 @@ ax1.xaxis.set_major_formatter(lon_formatter)
 ax1.yaxis.set_major_formatter(lat_formatter)
 ax1.tick_params(labelsize = 20)
 # set title
-ax1.set_title('(g)WST',fontdict = {'fontsize' : 20},loc = 'left')  
+ax1.set_title('(a)IND',fontdict = {'fontsize' : 20},loc = 'left')  
 # seperate colorbar   
 vmax = max(abs(np.reshape(diff,192*289)))
 vmin = -max(abs(np.reshape(diff,192*289)))
@@ -124,7 +124,7 @@ interval = [-1.35,-1.05,-0.75,-0.45,-0.15,-0.09,-0.03,0.03,0.09,0.15,0.45,0.75,1
 # plot contour
 h1 = plt.contourf(lon, lat, diff,
                   interval,
-                  cmap = cmaps.MPL_bwr,
+                  cmap = cmaps.GMT_panoply,
                   norm = norm,
                   #extend = 'both'
                   )
@@ -139,9 +139,9 @@ cb1 = plt.colorbar(h1,
                    orientation='horizontal')
 cb1.ax.tick_params(labelsize=13)  
 cb1.outline.set_linewidth(1)
-cb1.set_label('µg m⁻³',fontsize=15)
+cb1.set_label('°C',fontsize=15)
 # save pic
-plt.savefig('/public/home/gaojy/plot/soa_WST.jpeg',
+plt.savefig('/public/home/gaojy/plot/TREFHT_IND.jpeg',
             #dpi=300, 
             bbox_inches = 'tight')
 
