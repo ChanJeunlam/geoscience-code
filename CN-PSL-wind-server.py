@@ -9,7 +9,7 @@ import cartopy
 import pandas as pd
 import scipy.stats as stats
 from cartopy.io.shapereader import Reader
-
+import cmaps
 var = 'PSL'  
 # put all data into a list
 yr = [
@@ -20,20 +20,20 @@ yr = [
      ]
 mon = [
        '01','02','12',
-       #'03','04','05',
-       #'06','07','08',
-       #'09','10','11'
+       '03','04','05',
+       '06','07','08',
+       '09','10','11'
       ]
 base = []
 for m in range(len(yr)):
     for n in range(len(mon)):
         base.append(xr.open_dataset
-                     ('/public/home/gaojy/output/archive/Base/atm/hist//Base.cam.h0.'+yr[m]+'-'+mon[n]+'.nc'))   
+                     ('/public/home/gaojy/output/archive/AClean/atm/hist//AClean.cam.h0.'+yr[m]+'-'+mon[n]+'.nc'))   
 aclean = []
 for m in range(len(yr)):
     for n in range(len(mon)):
         aclean.append(xr.open_dataset
-                     ('/public/home/gaojy/output/archive/AClean/atm/hist//AClean.cam.h0.'+yr[m]+'-'+mon[n]+'.nc'))
+                     ('/public/home/gaojy/output/archive/AClean_O3/atm/hist//AClean_O3.cam.h0.'+yr[m]+'-'+mon[n]+'.nc'))
 
 
 
@@ -68,12 +68,12 @@ for o in range(nmon):
     aclean_v_tdata.append(aclean_v)
     base_v_tdata.append(base_v)
     diff_v += (aclean_v-base_v)/nmon
-aclean_tdata_mean = ((np.reshape(np.array(aclean_tdata),(15,3,192,288))).swapaxes(0,1)).mean(axis=0)
-base_tdata_mean = ((np.reshape(np.array(base_tdata),(15,3,192,288))).swapaxes(0,1)).mean(axis=0) 
-aclean_u_tdata_mean = ((np.reshape(np.array(aclean_u_tdata),(15,3,192,288))).swapaxes(0,1)).mean(axis=0)
-base_u_tdata_mean = ((np.reshape(np.array(base_u_tdata),(15,3,192,288))).swapaxes(0,1)).mean(axis=0) 
-aclean_v_tdata_mean = ((np.reshape(np.array(aclean_v_tdata),(15,3,192,288))).swapaxes(0,1)).mean(axis=0)
-base_v_tdata_mean = ((np.reshape(np.array(base_v_tdata),(15,3,192,288))).swapaxes(0,1)).mean(axis=0) 
+aclean_tdata_mean = ((np.reshape(np.array(aclean_tdata),(15,12,192,288))).swapaxes(0,1)).mean(axis=0)
+base_tdata_mean = ((np.reshape(np.array(base_tdata),(15,12,192,288))).swapaxes(0,1)).mean(axis=0) 
+aclean_u_tdata_mean = ((np.reshape(np.array(aclean_u_tdata),(15,12,192,288))).swapaxes(0,1)).mean(axis=0)
+base_u_tdata_mean = ((np.reshape(np.array(base_u_tdata),(15,12,192,288))).swapaxes(0,1)).mean(axis=0) 
+aclean_v_tdata_mean = ((np.reshape(np.array(aclean_v_tdata),(15,12,192,288))).swapaxes(0,1)).mean(axis=0)
+base_v_tdata_mean = ((np.reshape(np.array(base_v_tdata),(15,12,192,288))).swapaxes(0,1)).mean(axis=0) 
 
 
 
@@ -110,9 +110,9 @@ for p in range(len(lat)):
             if p_value[p,q]<=0.1:
                 index_y.append(lat[p])
                 index_x.append(lon[q])   
-            if p_value_u[p,q]>0.1 and p_value_v[p,q]>0.1:
-                diff_u[p,q] = 0
-                diff_v[p,q] = 0
+            #if p_value_u[p,q]>0.1 and p_value_v[p,q]>0.1:
+            #    diff_u[p,q] = 0
+            #   diff_v[p,q] = 0
                 #index_uv_y.append(lat[p])
                 #index_uv_x.append(lon[q])
                 #index_uv_u.append(diff_u[p,q])
@@ -130,7 +130,7 @@ index_y.append(-90)
 
 # set contour interval
 #interval = [-10.5,-7.5,-4.5,-1.5,1.5,4.5,7.5,10.5,13.5]
-interval = [-220,-180,-140,-100,-60,-20,20,60,100,140,180,220]
+interval = [-220,-180,-140,-100,-80,-60,-40,-20,0,20,40,60,80,100,140,180,220]
 # plot 
 diff = np.array(diff)
 diff, lon = add_cyclic_point(diff, coord=lon)
@@ -146,7 +146,7 @@ proj = cartopy.crs.PlateCarree(central_longitude=0)
 ax1 = fig.add_subplot(1, 1, 1, projection=proj)
 ax1.outline_patch.set_linewidth(4)
 ax1.add_feature(cartopy.feature.COASTLINE,linewidth=4)
-reader = Reader('/public/home/gaojy/plot/Data_ipynb/bou2_4p.shp')
+reader = Reader('/public/home/gaojy/plot/Data_ipynb/bou1_4p.shp')
 provinces = cartopy.feature.ShapelyFeature(
     reader.geometries(), proj, edgecolor='k', facecolor='none')
 ax1.add_feature(provinces, linewidth=4)
@@ -169,7 +169,7 @@ ax1.set_title(' ',fontdict = {'fontsize' : 45})
 # plot contour
 h1 = plt.contourf(lon, lat, diff,
                   interval,
-                  cmap = plt.cm.bwr,
+                  cmap = cmaps.MPL_RdBu_r,
                   norm = norm,
                   extend = 'both')
 
@@ -187,20 +187,20 @@ ax1.plot(index_x,index_y, markersize=10,
 # =============================================================================
 
 #for i in range(len(index_uv_x)):
-Q = ax1.quiver(lon_uv[::4],lat_uv[::4],diff_u[::4,::4],diff_v[::4,::4],scale=20,width=0.0025,minshaft = 1, minlength=0)
+Q = ax1.quiver(lon_uv[::3],lat_uv[::3],diff_u[::3,::3],diff_v[::3,::3],scale=13,width=0.003,minshaft = 1, minlength=0,headwidth = 2)
 ax1.quiverkey(Q, 0.9, 1.02, 1, r'$1 m/s$', labelpos='E',fontproperties = {'size':30})
 # add colorbar    
-cbar1 = fig.add_axes([0.15,0.18,0.72,0.03]) 
+cbar1 = fig.add_axes([0.15,0.18,0.72,0.02]) 
 cb1 = plt.colorbar(h1, 
                    cax=cbar1,
-                   ticks=interval,
+                   ticks=interval[::2],
                    orientation='horizontal')
 cb1.ax.tick_params(labelsize=40)  
 cb1.outline.set_linewidth(2)
 cb1.set_label('Pa',fontsize=40)
 
 # save pic
-plt.savefig('/public/home/gaojy/plot/CN-PSL-850wind-10-1.jpeg',
+plt.savefig('/public/home/gaojy/plot/CN-PSL-850wind.jpeg',
             #dpi=300, 
             bbox_inches = 'tight')
 
